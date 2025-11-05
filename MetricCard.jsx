@@ -1,65 +1,70 @@
-import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { motion } from "framer-motion";
+import React from 'react';
+import { motion } from 'framer-motion';
+import NeaCard from '../ui/NeaCard';
+import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
 export default function MetricCard({ 
-  icon: Icon, 
-  title, 
-  value, 
-  subtitle, 
-  trend, 
-  variant = "default",
-  className = ""
+    icon: Icon, 
+    label, 
+    value, 
+    change,
+    changeLabel = "vs période précédente",
+    iconColor = "text-[var(--nea-primary-blue)]",
+    iconBg = "bg-[var(--nea-primary-blue)]/10",
+    valueColor,
+    delay = 0 
 }) {
-  const variantStyles = {
-    default: "bg-[var(--nea-bg-surface)] border-[var(--nea-border-default)]",
-    success: "bg-green-500/10 border-green-500/30",
-    warning: "bg-yellow-500/10 border-yellow-500/30",
-    danger: "bg-red-500/10 border-red-500/30",
-    info: "bg-blue-500/10 border-blue-500/30",
-    primary: "bg-blue-500/10 border-blue-500/30"
-  };
+    const getTrendIcon = () => {
+        if (!change) return null;
+        if (change > 0) return <TrendingUp className="w-4 h-4 text-green-400" />;
+        if (change < 0) return <TrendingDown className="w-4 h-4 text-red-400" />;
+        return <Minus className="w-4 h-4 text-gray-400" />;
+    };
 
-  const iconVariantStyles = {
-    default: "text-[var(--nea-primary-blue)]",
-    success: "text-green-400",
-    warning: "text-yellow-400",
-    danger: "text-red-400",
-    info: "text-blue-400",
-    primary: "text-blue-400"
-  };
+    const getTrendColor = () => {
+        if (!change) return 'text-gray-400';
+        if (change > 0) return 'text-green-400';
+        if (change < 0) return 'text-red-400';
+        return 'text-gray-400';
+    };
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.2 }}
-      className={className}
-    >
-      <Card className={`${variantStyles[variant]} hover:border-[var(--nea-primary-blue)]/50 transition-colors h-full`}>
-        <CardContent className="p-6">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <p className="text-sm font-medium text-[var(--nea-text-secondary)] mb-2">{title}</p>
-              <p className="text-3xl font-bold text-[var(--nea-text-title)] mb-1">{value}</p>
-              {subtitle && (
-                <p className="text-xs text-[var(--nea-text-muted)]">{subtitle}</p>
-              )}
-              {trend && (
-                <p className={`text-xs mt-2 font-semibold ${trend.direction === 'up' ? 'text-green-400' : trend.direction === 'down' ? 'text-red-400' : 'text-gray-400'}`}>
-                  {trend.direction === 'up' ? '↑' : trend.direction === 'down' ? '↓' : '→'} {trend.value}
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay }}
+        >
+            <NeaCard className="p-6 hover:border-[var(--nea-primary-blue)] transition-all duration-300">
+                <div className="flex items-start justify-between mb-4">
+                    {Icon && (
+                        <div className={`w-12 h-12 rounded-lg ${iconBg} flex items-center justify-center`}>
+                            <Icon className={`w-6 h-6 ${iconColor}`} />
+                        </div>
+                    )}
+                    {change !== undefined && (
+                        <div className={`flex items-center gap-1 ${getTrendColor()}`}>
+                            {getTrendIcon()}
+                            <span className="text-sm font-semibold">
+                                {change > 0 ? '+' : ''}{change}%
+                            </span>
+                        </div>
+                    )}
+                </div>
+                
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                    {label}
                 </p>
-              )}
-            </div>
-            {Icon && (
-              <div className={`p-3 rounded-lg bg-white/5 ${iconVariantStyles[variant]}`}>
-                <Icon className="w-6 h-6" />
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
+                
+                <p className={`text-3xl font-bold ${valueColor || 'text-gray-900 dark:text-white'}`}>
+                    {value}
+                </p>
+
+                {change !== undefined && (
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                        {changeLabel}
+                    </p>
+                )}
+            </NeaCard>
+        </motion.div>
+    );
 }
